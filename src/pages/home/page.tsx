@@ -9,13 +9,13 @@ import { useAccount, useWalletClient, useBalance } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "react-toastify";
-import { waitForTransactionReceipt } from "viem/actions";
+// import { waitForTransactionReceipt } from "viem/actions";
 import { FiArrowDown, FiInfo, FiZap, FiTrendingUp } from 'react-icons/fi';
-import { cn } from '../../utils/cn';
+// import { cn } from '../../utils/cn';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
-import { ethers } from 'ethers';
+// import { ethers } from 'ethers';
 
 const Home = () => {
   const stakeContract = useStakeContract();

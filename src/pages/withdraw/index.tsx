@@ -7,7 +7,7 @@ import { Pid } from "../../utils";
 import { useAccount, useWalletClient } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { waitForTransactionReceipt } from "viem/actions";
+// import { waitForTransactionReceipt } from "viem/actions";
 import { toast } from "react-toastify";
 import { FiArrowUp, FiClock, FiInfo } from "react-icons/fi";
 import { cn } from "../../utils/cn";
