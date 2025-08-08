@@ -1,16 +1,25 @@
 "use client";
 import { motion } from "framer-motion";
 // import { useStakeContract } from "../../hooks/useContract";
-import { useStakeContract } from "../../hooks/ethersUseContract";
+// import { useStakeContract } from "../../hooks/ethersUseContract";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pid } from "../../utils";
-import { useAccount, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWalletClient,
+  // useWriteContract,
+} from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 // import { waitForTransactionReceipt } from "viem/actions";
 import { toast } from "react-toastify";
 import { FiArrowUp, FiClock, FiInfo } from "react-icons/fi";
 import { cn } from "../../utils/cn";
+import { StakeContractAddress } from "../../utils/env";
+import { stakeAbi } from "../../assets/abis/stake";
+import { useWriteContract } from "../../hooks/wagmiUseContract";
 
 export type UserStakeData = {
   staked: string;
@@ -25,49 +34,146 @@ const InitData: UserStakeData = {
 };
 
 const Withdraw = () => {
-  const stakeContract = useStakeContract();
-  const { address, isConnected } = useAccount();
-  const [amount, setAmount] = useState("");
-  const [unstakeLoading, setUnstakeLoading] = useState(false);
-  const [withdrawLoading, setWithdrawLoading] = useState(false);
-  const { data } = useWalletClient();
-  const [userData, setUserData] = useState<UserStakeData>(InitData);
+  // const stakeContract = useStakeContract();
+  // const { address, isConnected } = useAccount();
+  const { data, status } = useWalletClient();
+  const { data: staked, refetch: refetchStakingBalance } = useReadContract({
+    address: StakeContractAddress,
+    abi: stakeAbi,
+    functionName: "stakingBalance",
+    args: [BigInt(Pid), data?.account.address || "0x0"],
+    query: {
+      enabled: status === "success", // 确保只有连接钱包后才查询
+    },
+  });
+  const {
+    data: amountData,
+    refetch: refetchWithdrawAmount,
+    // isLoading: withdrawLoading,
+  } = useReadContract({
+    address: StakeContractAddress,
+    abi: stakeAbi,
+    functionName: "withdrawAmount",
+    args: [BigInt(Pid), data?.account.address || "0x0"],
+    query: {
+      enabled: status === "success", // 确保只有连接钱包后才查询
+    },
+  });
 
-  const isWithdrawable = useMemo(
-    () => Number(userData.withdrawable) > 0 && isConnected,
-    [userData, isConnected]
-  );
+  function refresh(): void {
+    refetchStakingBalance();
+    refetchWithdrawAmount();
+  }
 
-  const getUserData = useCallback(async () => {
-    if (!stakeContract || !address) return;
-    // 使用viem
-    // const staked = await stakeContract.read.stakingBalance([Pid, address]);
-    // 使用ethers
-    const staked = await stakeContract.stakingBalance(Pid, address);
-    // @ts-ignore
-    // 使用viem
-    // const [requestAmount, pendingWithdrawAmount] =
-    //   await stakeContract.write.withdrawAmount([Pid, address]);
-    // 使用ethers
-    const [requestAmount, pendingWithdrawAmount] =
-      await stakeContract.withdrawAmount(Pid, address);
+  const {
+    writeContractAsync: unstake,
+    status: waitForUnstakeTransactionReceiptStatus,
+    isLoading: unstakeLoading,
+    isFetched: isUnstakeFetched,
+    data: waitForUnstakeTransactionReceiptData,
+  } = useWriteContract();
+  const {
+    writeContractAsync: withdraw,
+    status: waitForWithdrawTransactionReceiptStatus,
+    isLoading: withdrawLoading,
+    isFetched: isWithdrawFetched,
+    data: waitForWithdrawTransactionReceiptData,
+  } = useWriteContract();
+  const userData = useMemo(() => {
+    const [requestAmount, pendingWithdrawAmount] = amountData || [
+      BigInt(0),
+      BigInt(0),
+    ];
     const ava = Number(formatUnits(pendingWithdrawAmount, 18));
     const total = Number(formatUnits(requestAmount, 18));
-    setUserData({
-      staked: formatUnits(staked as bigint, 18),
+    return {
+      staked: formatUnits((staked as bigint) || BigInt(0), 18),
       withdrawPending: (total - ava).toFixed(4),
       withdrawable: ava.toString(),
-    });
-  }, [stakeContract, address]);
-
+    };
+  }, [
+    staked,
+    amountData,
+    waitForUnstakeTransactionReceiptData,
+    waitForWithdrawTransactionReceiptData,
+  ]);
+  // const {
+  //   status: waitForTransactionReceiptStatus,
+  //   isLoading: unstakeLoading,
+  //   isFetched,
+  //   data: waitForTransactionReceiptData,
+  // } = useWaitForTransactionReceipt({ hash: writeContractData });
   useEffect(() => {
-    if (stakeContract && address) {
-      getUserData();
+    console.log("################", waitForUnstakeTransactionReceiptData);
+    if (isUnstakeFetched) {
+      if (waitForUnstakeTransactionReceiptStatus === "success") {
+        toast.success("Unstake successful!");
+        setAmount("");
+        refresh();
+      } else {
+        toast.error("Stake failed!");
+      }
     }
-  }, [address, stakeContract, getUserData]);
+  }, [
+    waitForUnstakeTransactionReceiptStatus,
+    waitForUnstakeTransactionReceiptData,
+    isUnstakeFetched,
+  ]);
+  useEffect(() => {
+    console.log("################", waitForWithdrawTransactionReceiptData);
+    if (isWithdrawFetched) {
+      if (waitForWithdrawTransactionReceiptStatus === "success") {
+        toast.success("Withdraw successful!");
+        refresh();
+      } else {
+        toast.error("Withdraw failed!");
+      }
+    }
+  }, [
+    waitForWithdrawTransactionReceiptStatus,
+    waitForWithdrawTransactionReceiptData,
+    isWithdrawFetched,
+  ]);
+  const [amount, setAmount] = useState("");
+  // const [unstakeLoading, setUnstakeLoading] = useState(false);
+  // const [withdrawLoading, setWithdrawLoading] = useState(false);
+  // const [userData, setUserData] = useState<UserStakeData>(InitData);
+
+  const isWithdrawable = useMemo(
+    () => Number(userData.withdrawable) > 0 && status === "success",
+    [userData, status]
+  );
+
+  // const getUserData = useCallback(async () => {
+  //   if (!stakeContract || !address) return;
+  //   // 使用viem
+  //   // const staked = await stakeContract.read.stakingBalance([Pid, address]);
+  //   // 使用ethers
+  //   // const staked = await stakeContract.stakingBalance(Pid, address);
+  //   // @ts-ignore
+  //   // 使用viem
+  //   // const [requestAmount, pendingWithdrawAmount] =
+  //   //   await stakeContract.read.withdrawAmount([Pid, address]);
+  //   // 使用ethers
+  //   // const [requestAmount, pendingWithdrawAmount] =
+  //   //   await stakeContract.withdrawAmount(Pid, address);
+  //   const ava = Number(formatUnits(pendingWithdrawAmount, 18));
+  //   const total = Number(formatUnits(requestAmount, 18));
+  //   setUserData({
+  //     staked: formatUnits(staked as bigint, 18),
+  //     withdrawPending: (total - ava).toFixed(4),
+  //     withdrawable: ava.toString(),
+  //   });
+  // }, [stakeContract, address]);
+
+  // useEffect(() => {
+  //   if (stakeContract && address) {
+  //     getUserData();
+  //   }
+  // }, [address, stakeContract, getUserData]);
 
   const handleUnStake = useCallback(async () => {
-    if (!stakeContract || !data) return;
+    if (!data) return;
     if (!amount || parseFloat(amount) <= 0) {
       toast.error("Please enter a valid amount");
       return;
@@ -77,45 +183,57 @@ const Withdraw = () => {
       return;
     }
     try {
-      setUnstakeLoading(true);
+      // setUnstakeLoading(true);
       // 使用viem
       // const tx = await stakeContract.write.unstake(Pid, parseUnits(amount, 18));
       // await waitForTransactionReceipt(data, { hash: tx });
       // 使用ethers
-      const tx = await stakeContract.unstake(Pid, parseUnits(amount, 18));
-      await tx.wait();
+      // const tx = await stakeContract.unstake(Pid, parseUnits(amount, 18));
+      // await tx.wait();
+      await unstake({
+        address: StakeContractAddress,
+        abi: stakeAbi,
+        functionName: "unstake",
+        args: [BigInt(Pid), parseUnits(amount, 18)],
+      });
 
-      toast.success("Unstake successful!");
-      setAmount("");
-      setUnstakeLoading(false);
-      getUserData();
+      // toast.success("Unstake successful!");
+      // setAmount("");
+      // setUnstakeLoading(false);
+      // getUserData();
     } catch (error) {
-      setUnstakeLoading(false);
+      // setUnstakeLoading(false);
       toast.error("Transaction failed. Please try again.");
       console.log(error, "stake-error");
     }
-  }, [stakeContract, data, amount, userData.staked, getUserData]);
+  }, [data, amount, userData.staked]);
 
   const handleWithdraw = useCallback(async () => {
-    if (!stakeContract || !data) return;
+    if (!data) return;
     try {
-      setWithdrawLoading(true);
+      // setWithdrawLoading(true);
       // 使用viem
       //  const tx = await stakeContract.write.withdraw([Pid]);
       // await waitForTransactionReceipt(data, { hash: tx });
       // 使用ethers
-      const tx = await stakeContract.withdraw(Pid);
-      await tx.wait();
+      // const tx = await stakeContract.withdraw(Pid);
+      // await tx.wait();
+      await withdraw({
+        address: StakeContractAddress,
+        abi: stakeAbi,
+        functionName: "withdraw",
+        args: [BigInt(Pid)],
+      });
 
-      toast.success("Withdraw successful!");
-      setWithdrawLoading(false);
-      getUserData();
+      // toast.success("Withdraw successful!");
+      // setWithdrawLoading(false);
+      // getUserData();
     } catch (error) {
-      setWithdrawLoading(false);
+      // setWithdrawLoading(false);
       toast.error("Transaction failed. Please try again.");
       console.log(error, "stake-error");
     }
-  }, [stakeContract, data, getUserData]);
+  }, [data]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -185,7 +303,7 @@ const Withdraw = () => {
           </div>
 
           <div className="pt-4">
-            {!isConnected ? (
+            {status !== "success" ? (
               <div className="flex justify-center">
                 <ConnectButton />
               </div>
