@@ -4,15 +4,15 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 antialiased;
+    @apply bg-gradient-to-br from-gray-50 via-white to-gray-50 text-gray-800 antialiased;
     background-image: radial-gradient(
         circle at 100% 0%,
-        rgba(14, 165, 233, 0.15) 0%,
+        rgba(14, 165, 233, 0.1) 0%,
         transparent 50%
       ),
       radial-gradient(
         circle at 0% 100%,
-        rgba(14, 165, 233, 0.15) 0%,
+        rgba(14, 165, 233, 0.1) 0%,
         transparent 50%
       );
   }
@@ -37,16 +37,16 @@
   }
 
   .card {
-    @apply bg-gray-800/50 backdrop-blur-xl rounded-2xl shadow-2xl 
-           border border-gray-700/50 hover:border-primary-500/50
-           transition-all duration-300 ease-in-out p-8;
+    @apply bg-white backdrop-blur-xl rounded-2xl shadow-lg 
+         border border-gray-100 hover:border-primary-500/50
+         transition-all duration-300 ease-in-out p-8;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg 
-           focus:ring-2 focus:ring-primary-500 focus:border-primary-500 
-           outline-none transition-all duration-200 text-gray-100
-           placeholder-gray-500;
+    @apply w-full px-4 py-3 bg-white border border-gray-200 rounded-lg 
+         focus:ring-2 focus:ring-primary-500 focus:border-primary-500 
+         outline-none transition-all duration-200 text-gray-800
+         placeholder-gray-400;
   }
 
   .tech-grid {
@@ -76,11 +76,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-800;
+  @apply bg-gray-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary-500/50 rounded-full hover:bg-primary-500 transition-colors duration-200;
+  @apply bg-primary-400/50 rounded-full hover:bg-primary-500 transition-colors duration-200;
 }
 
 /* 动画 */
@@ -131,8 +131,8 @@
 
 /* 自定义 react-toastify 样式 */
 .custom-toast {
-  @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-primary-500/30 shadow-xl rounded-xl text-gray-100 px-6 py-4 flex items-center backdrop-blur-lg;
-  box-shadow: 0 4px 32px 0 rgba(14, 165, 233, 0.15);
+  @apply bg-gradient-to-br from-white via-gray-50 to-white border border-primary-500/30 shadow-lg rounded-xl text-gray-800 px-6 py-4 flex items-center backdrop-blur-lg;
+  box-shadow: 0 4px 32px 0 rgba(14, 165, 233, 0.1);
 }
 .custom-toast-body {
   @apply text-gray-900 font-semibold drop-shadow;

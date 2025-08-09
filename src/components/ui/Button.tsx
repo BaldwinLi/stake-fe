@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
-import { cn } from '../../utils/cn';
+import { motion } from "framer-motion";
+import { ReactNode } from "react";
+import { cn } from "../../utils/cn";
 
 interface ButtonProps {
   children: ReactNode;
@@ -8,8 +8,8 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   className?: string;
-  type?: 'button' | 'submit' | 'reset';
-  variant?: 'primary' | 'secondary' | 'outline';
+  type?: "button" | "submit" | "reset";
+  variant?: "primary" | "secondary" | "outline";
   fullWidth?: boolean;
 }
 
@@ -19,16 +19,20 @@ export const Button = ({
   disabled = false,
   loading = false,
   className,
-  type = 'button',
-  variant = 'primary',
+  type = "button",
+  variant = "primary",
   fullWidth = false,
 }: ButtonProps) => {
-  const baseStyles = "flex items-center justify-center space-x-2 transition-all duration-300";
+  const baseStyles =
+    "flex items-center justify-center space-x-2 transition-all duration-300";
 
   const variants = {
-    primary: "btn-primary",
-    secondary: "bg-gray-700 hover:bg-gray-600 text-white rounded-lg px-6 py-3",
-    outline: "border-2 border-primary-500 text-primary-500 hover:bg-primary-500/10 rounded-lg px-6 py-3",
+    primary:
+      "bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg px-6 py-3 transition-all duration-300",
+    secondary:
+      "bg-gradient-to-r from-secondary-500 to-secondary-600 text-white rounded-lg px-6 py-3 transition-all duration-300",
+    outline:
+      "border border-primary-500 text-primary-600 hover:bg-primary-50 rounded-lg px-6 py-3 transition-all duration-300",
   };
 
   return (
@@ -56,4 +60,4 @@ export const Button = ({
       )}
     </motion.button>
   );
-}; 
+};

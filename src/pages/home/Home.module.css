@@ -1,0 +1,38 @@
+.main {
+  min-height: 100vh;
+  padding: 4rem 0;
+  width: 100%;  /* 改为100%宽度 */
+  max-width: 1200px;  /* 添加最大宽度限制 */
+  margin: 0 auto;  /* 水平居中 */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: unset;  /* 移除最小宽度限制 */
+  padding: 2rem 1rem;  /* 调整内边距 */
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+    margin: 2rem 0;
+  }
+  .description {
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+  .card {
+    margin: 0.5rem;
+    padding: 1rem;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 2rem 0;
+  }
+  .title {
+    font-size: 1.8rem;
+  }
+}
