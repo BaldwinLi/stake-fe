@@ -77,7 +77,7 @@ function useEthersSigner(): any {
   const chainId = options?.chainId || currentChainId;
   const signer = useEthersSigner();
   return useMemo(() => {
-    if (!addressOrAddressMap || !abi || !chainId) return null;
+    if (!addressOrAddressMap || !abi || !chainId || !signer) return null;
     let address: string | undefined;
     if (typeof addressOrAddressMap === "string") address = addressOrAddressMap;
     else address = addressOrAddressMap[chainId];
