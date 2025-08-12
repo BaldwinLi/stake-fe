@@ -77,7 +77,7 @@ const Home = () => {
       // 使用viem
       // const res = await stakeContract.read.stakingBalance([Pid], { account: address });
       // 使用ethers
-      const res = await stakeContract.stakingBalance(Pid, address);
+      const res = await stakeContract?.stakingBalance?.(Pid, address);
       setStakedAmount(formatUnits(res as bigint, 18));
     }
   }, [stakeContract, address]);

@@ -1,4 +1,5 @@
-import { Contract, ethers, Signer, type InterfaceAbi } from "ethers";
+"use client";
+import { ethers, Signer, type InterfaceAbi } from "ethers";
 import { StakeContractAddress } from "../utils/env";
 import { stakeAbi } from "../assets/abis/stake";
 import { UseContractOptions } from "./useContract";
@@ -11,10 +12,16 @@ function useChainId() {
     async function getChainId() {
       if (window.ethereum) {
         try {
+          // const chainId = await window.ethereum.request({
+          //   method: "eth_chainId",
+          // });
+          // debugger
+          // const provider = new ethers.BrowserProvider(window.ethereum);
+          //  const {chainId} = await provider.getNetwork();
           const chainId = await window.ethereum.request({
-            method: "eth_chainId",
-          });
-          setChainId(parseInt(chainId, 16));
+              method: "net_version",
+            });
+          setChainId(Number(chainId));
         } catch (e) {
           console.error("Failed to get chainId", e);
         }
