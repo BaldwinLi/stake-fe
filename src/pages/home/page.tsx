@@ -5,7 +5,7 @@ import { useStakeContract } from "../../hooks/ethersUseContract";
 
 import { useCallback, useEffect, useState } from "react";
 import { Pid } from "../../utils";
-import { useAccount, useWalletClient, useBalance } from "wagmi";
+import { useAccount, useWalletClient, useBalance, useDisconnect } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "react-toastify";
@@ -87,9 +87,9 @@ const Home = () => {
       getStakedAmount();
     }
   }, [stakeContract, address, getStakedAmount]);
-
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* <button onClick={() => disconnect()}>Disconnect</button> */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
